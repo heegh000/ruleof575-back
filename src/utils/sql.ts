@@ -23,7 +23,7 @@ const sql_details = (lec_num : number) : string[] => {
             ON depart."수업번호" = pn2."수업번호";
             `
     ];
-}
+};
 
 const sql_grad = (stu_id : string) : string[] => {
     return [
@@ -46,7 +46,7 @@ const sql_grad = (stu_id : string) : string[] => {
                 AND list."상태" = 1;
             `
     ];
-}
+};
 
 const sql_list_init = (stu_id : string) : string => {
     return  `
@@ -65,5 +65,6 @@ const sql_list_init = (stu_id : string) : string => {
                 AND list."상태" != -1
                 AND list."수업번호" = info."수업번호"; 
             `
-}
+};
+
 export { sql_details, sql_grad, sql_list_init };

@@ -18,7 +18,7 @@ app.use(cors<Request>());
 
 //POST 요청 처리를 위한 미들웨어
 app.use(express.json());
-app.use(express.urlencoded( {extended : false } ));
+app.use(express.urlencoded({extended : false }));
 
 //라우터 연결
 app.use('/details', details);
@@ -33,7 +33,7 @@ app.use('/test', test);
 app.use((err : Error, req : Request, res : Response, next : NextFunction) => {
     console.error(err);
     res.status(500).send('Unknown Error');
-})
+});
 
 app.listen(port, () => {
     console.log("Server Start");

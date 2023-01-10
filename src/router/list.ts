@@ -7,14 +7,13 @@ const router : Router = Router();
 router.get('/init', async(req : Request, res : Response) => {
     try {
         let stu_id : any = req.query.stu_id;
-    
-        console.log("Request: init list after login: " + stu_id);
-        
         let sql : string = sql_list_init(stu_id);
         
-        console.log(sql);
-
-        let rows : object[] = (await db.query(sql)).rows;
+        let rows : object[];
+        
+        console.log("Request: init list after login: " + stu_id);
+        
+        rows= (await db.query(sql)).rows;
         
         res.send(rows);
     }
