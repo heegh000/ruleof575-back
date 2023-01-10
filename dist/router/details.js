@@ -12,38 +12,40 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.router = void 0;
 const express_1 = require("express");
 const db_1 = require("../database/db");
-const tables_1 = require("../database/tables");
+const sql_1 = require("../utils/sql");
 const router = (0, express_1.Router)();
 exports.router = router;
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let lec_num = req.query.lec_num;
-    console.log(lec_num);
-    let sql = `
-                        SELECT * 
-                        FROM ${tables_1.table_names.lec_info} AS info
-                        JOIN ${tables_1.table_names.pp} as pp
-                        ON info."수업번호" = ${lec_num} 
-                            AND pp."수업번호" = info."수업번호" ;
-                        `;
     try {
-        let rows = (yield db_1.db.query(sql)).rows;
-        let result = {};
+        let lec_num = req.query.lec_num;
+        let sql = (0, sql_1.sql_details)(lec_num);
+        // let sql : string =  `
+        //                     SELECT *
+        //                     FROM ${tables.lec_info} AS info
+        //                     JOIN ${tables.pp} as pp
+        //                     ON info."수업번호" = ${lec_num} 
+        //                         AND pp."수업번호" = info."수업번호" ;
+        //                     `;
+        let rows = (yield db_1.db.query(sql[0])).rows;
+        let result = {
+            lec: {},
+            pn: {},
+            depart: []
+        };
         result.lec = rows;
-        sql = `
-                SELECT * 
-                FROM ${tables_1.table_names.depart_stu_num} as dep
-                JOIN 
-                    (SELECT pn.* 
-                    FROM ${tables_1.table_names.people_num} as pn
-                    JOIN  ${tables_1.table_names.lec_info} AS info
-                    ON info."학수번호" = pn."학수번호"
-                        AND info."설강소속코드" = pn."설강소속코드"
-                        AND info."수업번호" = ${lec_num}) as pn
-                ON dep."수업번호" = pn."수업번호";
-                `;
-        rows = (yield db_1.db.query(sql)).rows;
-        result.pn = {};
-        result.dep = [];
+        // sql =   `
+        //         SELECT * 
+        //         FROM ${tables.depart_stu_num} as depart
+        //         JOIN 
+        //             (SELECT pn.* 
+        //             FROM ${tables.people_num} as pn
+        //             JOIN  ${tables.lec_info} AS info
+        //             ON info."학수번호" = pn."학수번호"
+        //                 AND info."설강소속코드" = pn."설강소속코드"
+        //                 AND info."수업번호" = ${lec_num}) as pn2
+        //         ON depart."수업번호" = pn2."수업번호";
+        //         `;
+        rows = (yield db_1.db.query(sql[1])).rows;
         for (let i in rows) {
             if (+i == 0) {
                 result.pn = {
@@ -54,7 +56,7 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     희망수업등록인원: rows[i].희망수업등록인원
                 };
             }
-            result.dep.push({
+            result.depart.push({
                 희망신청소속: rows[i].희망신청소속,
                 학생수: rows[i].학생수
             });
@@ -63,10 +65,10 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
     catch (err) {
         if (err instanceof Error) {
-            console.error("details error" + err);
+            console.error("details error: " + err);
         }
         else {
-            console.log("details error" + err);
+            console.log("Unknwon details error: " + err);
         }
         res.status(500).send("Error");
     }

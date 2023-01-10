@@ -15,16 +15,17 @@ const app = (0, express_1.default)();
 const port = 1324;
 //db 연결
 db_1.db.connect();
-app.use(express_1.default.json());
-app.use(express_1.default.urlencoded({ extended: false }));
 //CORS 설정
 app.use((0, cors_1.default)());
+//POST 요청 처리를 위한 미들웨어
+app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: false }));
 //라우터 연결
-app.use('/grad', grad_1.router);
 app.use('/details', details_1.router);
+app.use('/grad', grad_1.router);
 app.use('/list', list_1.router);
 app.use('/recommend', recommend_1.router);
-//테스팅
+//테스팅 라우터
 app.use('/test', test_1.router);
 //에러 처리
 app.use((err, req, res, next) => {

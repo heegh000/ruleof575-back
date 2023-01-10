@@ -18,7 +18,7 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let temp = {
         test: "get test"
     };
-    res.send(JSON.stringify(temp));
+    res.send(temp);
 }));
 router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("ASDSAD");
@@ -27,5 +27,5 @@ router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let t = {
         test: "post test"
     };
-    res.send(JSON.stringify(t));
+    res.send(t);
 }));

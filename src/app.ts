@@ -13,21 +13,20 @@ const port : number = 1324;
 //db 연결
 db.connect();
 
-app.use(express.json());
-app.use(express.urlencoded( {extended : false } ));
-
-
 //CORS 설정
 app.use(cors<Request>());
 
+//POST 요청 처리를 위한 미들웨어
+app.use(express.json());
+app.use(express.urlencoded( {extended : false } ));
 
 //라우터 연결
-app.use('/grad', grad);
 app.use('/details', details);
+app.use('/grad', grad);
 app.use('/list', list);
 app.use('/recommend', recommend);
 
-//테스팅
+//테스팅 라우터
 app.use('/test', test);
 
 //에러 처리
@@ -35,7 +34,6 @@ app.use((err : Error, req : Request, res : Response, next : NextFunction) => {
     console.error(err);
     res.status(500).send('Unknown Error');
 })
-
 
 app.listen(port, () => {
     console.log("Server Start");

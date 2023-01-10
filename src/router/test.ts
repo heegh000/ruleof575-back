@@ -8,7 +8,7 @@ router.get('/', async(req : Request, res : Response) => {
                     test : "get test"
                 };
 
-    res.send(JSON.stringify(temp));
+    res.send(temp);
 });
 
 router.post('/', async(req : Request, res : Response) => 
@@ -25,7 +25,7 @@ router.post('/', async(req : Request, res : Response) =>
         test : "post test"
     };
 
-    res.send(JSON.stringify(t));
+    res.send(t);
 
 });
 
