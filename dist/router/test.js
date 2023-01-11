@@ -22,10 +22,9 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("ASDSAD");
-    let temp = req.body;
-    console.log(temp);
-    let t = {
-        test: "post test"
-    };
-    res.send(t);
+    console.log(req.body);
+    res.send("post test");
 }));
+{
+    미래창업: 0;
+}

@@ -1,8 +1,3 @@
-interface I_grad_res {
-    status : object[];
-    list : object[];
-}
-
 interface I_details_res {
     lec : object;
     pn : object;
@@ -10,4 +5,4 @@ interface I_details_res {
 }
 
 
-export { I_grad_res, I_details_res };
+export { I_details_res };

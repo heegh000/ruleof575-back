@@ -12,7 +12,15 @@ router.get('/', async(req : Request, res : Response) => {
 });
 
 router.post('/', async(req : Request, res : Response) => {
+    console.log("ASDSAD");
+    console.log(req.body);
     res.send("post test");
 });
 
 export { router };
+
+{
+
+    미래창업: 0
+    
+}

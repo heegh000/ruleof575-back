@@ -1,17 +1,18 @@
-import { Router, Request, Response } from 'express';
+import e, { Router, Request, Response } from 'express';
 import { db } from '../database/db';
-import { sql_list_init } from '../utils/sql'
+import { sql_list_init, sql_list_old_list, sql_list_update } from '../utils/sql'
 
 const router : Router = Router();
 
 router.get('/init', async(req : Request, res : Response) => {
+
     try {
         let stu_id : any = req.query.stu_id;
         let sql : string = sql_list_init(stu_id);
         
         let rows : object[];
         
-        console.log("Request: init list after login: " + stu_id);
+        console.log("Request: list init after login: " + stu_id);
         
         rows= (await db.query(sql)).rows;
         
@@ -19,20 +20,48 @@ router.get('/init', async(req : Request, res : Response) => {
     }
     catch(err) {
         if(err instanceof Error) {
-            console.error("list login error: " + err);
+            console.error("list init error: " + err);
         }
         else {
-            console.log("Unknwon list login error: " + err);
+            console.log("Unknwon list init error: " + err);
         }
 
-        res.status(500).send("Error");
+        res.status(500).send("Fali list init");
     }
 });
 
 router.post('/update', async(req : Request, res : Response) => {
-    console.log("update");
-    console.log(req.body);
-    res.send("ASDSADSADAS");
+    try {
+        let stu_id : string = req.body.stu_id;
+        let new_list : object[] = req.body.list;
+        let sql : string = sql_list_old_list(stu_id)
+        
+        let old_list : object[];
+        old_list = (await db.query(sql)).rows;
+        let arr_to_del : any = old_list.filter((ele1: any) => !new_list.some( (ele2: any) => ele1.수업번호 == ele2.수업번호));
+        let arr_to_update : any = new_list.filter((ele1: any) => !old_list.some( (ele2: any) => ele1.수업번호 == ele2.수업번호 && ele1.state == ele2.state));
+        
+        let rec : any;
+        for (rec of arr_to_del) {
+            rec.state = -1;
+        }
+        arr_to_update = arr_to_update.concat(arr_to_del);
+        sql = sql_list_update(stu_id, arr_to_update);
+
+        await db.query(sql);
+
+        res.send("Sueccess list update");
+    }
+    catch(err) {
+        if(err instanceof Error) {
+            console.error("list update error " + err);
+        }
+        else {
+            console.log("Unknwon list update error: " + err);
+        }
+
+        res.status(500).send("Fail list update");
+    }
 })
 
 export { router };
