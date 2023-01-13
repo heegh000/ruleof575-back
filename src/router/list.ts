@@ -1,4 +1,4 @@
-import e, { Router, Request, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { db } from '../database/db';
 import { sql_list_init, sql_list_old_list, sql_list_update } from '../utils/sql'
 
@@ -15,7 +15,7 @@ router.get('/init', async(req : Request, res : Response) => {
         console.log("Request: list init after login: " + stu_id);
         
         rows= (await db.query(sql)).rows;
-        
+
         res.send(rows);
     }
     catch(err) {
@@ -38,15 +38,20 @@ router.post('/update', async(req : Request, res : Response) => {
         
         let old_list : object[];
         old_list = (await db.query(sql)).rows;
-        let arr_to_del : any = old_list.filter((ele1: any) => !new_list.some( (ele2: any) => ele1.수업번호 == ele2.수업번호));
-        let arr_to_update : any = new_list.filter((ele1: any) => !old_list.some( (ele2: any) => ele1.수업번호 == ele2.수업번호 && ele1.state == ele2.state));
+        let lecs_to_del : any = old_list.filter((ele1: any) => 
+            !new_list.some((ele2: any) => ele1.수업번호 == ele2.수업번호)
+        );
+
+        let lecs_to_update : any = new_list.filter((ele1: any) => 
+            !old_list.some((ele2: any) => ele1.수업번호 == ele2.수업번호 && ele1.state == ele2.state)
+        );
         
-        let rec : any;
-        for (rec of arr_to_del) {
-            rec.state = -1;
+        let lec : any;
+        for (lec of lecs_to_del) {
+            lec.state = -1;
         }
-        arr_to_update = arr_to_update.concat(arr_to_del);
-        sql = sql_list_update(stu_id, arr_to_update);
+        lecs_to_update = lecs_to_update.concat(lecs_to_del);
+        sql = sql_list_update(stu_id, lecs_to_update);
 
         await db.query(sql);
 

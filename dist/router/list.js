@@ -31,7 +31,7 @@ router.get('/init', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         else {
             console.log("Unknwon list init error: " + err);
         }
-        res.status(500).send("Error");
+        res.status(500).send("Fali list init");
     }
 }));
 router.post('/update', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -40,31 +40,17 @@ router.post('/update', (req, res) => __awaiter(void 0, void 0, void 0, function*
         let new_list = req.body.list;
         let sql = (0, sql_1.sql_list_old_list)(stu_id);
         let old_list;
-        let target;
         old_list = (yield db_1.db.query(sql)).rows;
-        let to_delete = old_list.filter((ele1) => {
-            !new_list.some((ele2) => {
-                ele1.num == ele2.num && ele1.state == ele2.state;
-            });
-        });
-        // for (target of to_delete) {
-        //     sql = sql_list_to_delete(stu_id, target.수업번호);
-        //     (await db.query(sql));
-        // }
-        let to_update = new_list.filter((ele1) => {
-            !old_list.some((ele2) => {
-                ele1.num == ele2.num && ele1.state == ele2.state;
-            });
-        });
-        console.log(old_list);
-        console.log(new_list);
-        console.log(to_delete);
-        console.log(to_update);
-        // for (target of to_update) {
-        //     sql = sql_list_to_update(stu_id, target.수업번호, target.state);
-        //     (await db.query(sql));
-        // }
-        res.send({ to_del: to_delete, to_up: to_update });
+        let lecs_to_del = old_list.filter((ele1) => !new_list.some((ele2) => ele1.수업번호 == ele2.수업번호));
+        let lecs_to_update = new_list.filter((ele1) => !old_list.some((ele2) => ele1.수업번호 == ele2.수업번호 && ele1.state == ele2.state));
+        let lec;
+        for (lec of lecs_to_del) {
+            lec.state = -1;
+        }
+        lecs_to_update = lecs_to_update.concat(lecs_to_del);
+        sql = (0, sql_1.sql_list_update)(stu_id, lecs_to_update);
+        yield db_1.db.query(sql);
+        res.send("Sueccess list update");
     }
     catch (err) {
         if (err instanceof Error) {
@@ -73,6 +59,6 @@ router.post('/update', (req, res) => __awaiter(void 0, void 0, void 0, function*
         else {
             console.log("Unknwon list update error: " + err);
         }
-        res.status(500).send("Error");
+        res.status(500).send("Fail list update");
     }
 }));

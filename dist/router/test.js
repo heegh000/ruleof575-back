@@ -14,17 +14,9 @@ const express_1 = require("express");
 const router = (0, express_1.Router)();
 exports.router = router;
 router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("get test");
-    let temp = {
-        test: "get test"
-    };
-    res.send(temp);
 }));
 router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("ASDSAD");
     console.log(req.body);
-    res.send("post test");
+    res.send(req.body);
 }));
-{
-    미래창업: 0;
-}
