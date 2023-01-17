@@ -3,7 +3,7 @@ const num_to_time = (num : number) => {
         return num + ':00'
     }
     else {
-        return num.toFixed() + ':30'
+        return Math.floor(num) + ':30'
     }
 
 }

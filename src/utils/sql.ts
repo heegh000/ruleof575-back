@@ -79,6 +79,7 @@ const sql_list_init = (stu_id : string) : string => {
                 info."과목명",
                 info."대표교강사명",
                 REPLACE(info."수업시간", ',', '<br />') AS "수업시간",
+                info."영역코드명",
                 tp_list."요일",
                 tp_list."시작시간",
                 tp_list."끝시간",
@@ -145,6 +146,7 @@ const sql_recommend = (intervals : any) : string => {
                     '과목명', recom_info_list."과목명",
                     '대표교강사명', recom_info_list."대표교강사명",
                     '수업시간', recom_info_list."수업시간",
+                    '영역코드명', recom_info_list."영역코드명",
                     '요일', recom_info_list."요일",
                     '시작시간', recom_info_list."시작시간",
                     '끝시간', recom_info_list."끝시간" 
@@ -194,7 +196,6 @@ const sql_recommend = (intervals : any) : string => {
                 ON info."수업번호" = recom."수업번호"
                     AND (info."이수구분코드" = 111 OR info."이수구분코드" = 711)) AS recom_info_list
             GROUP BY recom_info_list."영역코드명"
-            ORDER BY recom_info_list."영역코드명"
             `;    
     
     return sql;
