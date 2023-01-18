@@ -22,7 +22,7 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         let rows;
         let result = {
             lec_info: {},
-            prev_info: []
+            prev_infos: []
         };
         rows = (yield db_1.db.query(sql[0])).rows;
         result.lec_info = rows[0];
@@ -33,7 +33,7 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             if (save_num != row.수업번호) {
                 save_num = row.수업번호;
                 save_idx++;
-                result.prev_info.push({
+                result.prev_infos.push({
                     수업번호: row.수업번호,
                     제한인원: row.제한인원,
                     신청인원: row.신청인원,
@@ -43,26 +43,11 @@ router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                     희망수업세부정보: []
                 });
             }
-            result.prev_info[save_idx].희망수업세부정보.push({
+            result.prev_infos[save_idx].희망수업세부정보.push({
                 희망신청소속: row.희망신청소속,
                 학생수: row.학생수
             });
         }
-        // if(rows.length != 0) {
-        //     result.pn = {
-        //         제한인원: rows[0].제한인원,
-        //         신청인원: rows[0].신청인원,
-        //         다중전공배당인원: rows[0].다중전공배당인원,
-        //         증원인원: rows[0].증원인원,
-        //         희망수업등록인원: rows[0].희망수업등록인원 
-        //     };
-        //     for(let row of rows) {
-        //         result.depart.push({
-        //             희망신청소속: row.희망신청소속,
-        //             학생수: row.학생수
-        //         });
-        //     }
-        // }
         res.send(result);
     }
     catch (err) {

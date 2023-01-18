@@ -5,11 +5,60 @@ const tables_1 = require("../database/tables");
 const sql_details = (lec_num) => {
     return [
         `
-            SELECT *
+            SELECT
+                info."수업번호",
+                info."학수번호",
+                info."과목명",
+                info."이수구분코드명",
+                info."학점"::smallint,
+                info."이론"::smallint,
+                info."실습"::smallint,
+                info."대표교강사명",
+                info."강좌유형",
+                info."수업시간",
+                info."강의실",
+                info."특수수업구분",
+                info."정원",
+                pp."설강기준평점",
+                pp."A+",
+                pp."A0",
+                pp."B+",
+                pp."B0",
+                pp."C+",
+                pp."C0",
+                pp."D+",
+                pp."D0",
+                pp."Pass",
+                pp."F",
+                pp."전체인원"
             FROM ${tables_1.table_names.lec_info} AS info
             JOIN ${tables_1.table_names.pp} as pp
             ON info."수업번호" = ${lec_num} 
                 AND pp."수업번호" = info."수업번호" ;
+            `,
+        `
+            SELECT
+                pn."수업번호",
+                pn."제한인원",
+                pn."신청인원",
+                pn."다중전공배당인원",
+                pn."증원인원",
+                pn."희망수업등록인원",
+                depart."희망신청소속",
+                depart."학생수"
+            FROM
+                (SELECT prev_info."수업번호"
+                FROM ${tables_1.table_names.lec_info} AS info
+                JOIN ${tables_1.table_names.prev_lec_info} AS prev_info
+                ON info."수업번호" = ${lec_num} 
+                    AND info."학수번호" = prev_info."학수번호"
+                    AND info."설강소속코드" = prev_info."설강소속코드"
+                    AND info."대표교강사명" = prev_info."대표교강사명") AS prev_lecs
+            JOIN ${tables_1.table_names.people_num} AS pn
+            ON pn."수업번호" = prev_lecs."수업번호"
+            JOIN ${tables_1.table_names.depart_stu_num} AS depart
+            ON depart."수업번호" = prev_lecs."수업번호"
+            ORDER BY prev_lecs."수업번호";
             `,
         `
             SELECT 
@@ -22,22 +71,20 @@ const sql_details = (lec_num) => {
                 depart."희망신청소속",
                 depart."학생수"
             FROM 
-                (SELECT
+                (SELECT 
+                    info."학수번호",
+                    info."설강소속코드",
                     pn."수업번호",
                     pn."제한인원",
                     pn."신청인원",
                     pn."다중전공배당인원",
                     pn."증원인원",
                     pn."희망수업등록인원"
-                FROM	
-                    (SELECT 
-                        "학수번호",
-                        "설강소속코드"
-                    FROM ${tables_1.table_names.lec_info}
-                    WHERE "수업번호" = ${lec_num} ) AS lec
-                JOIN ${tables_1.table_names.people_num} AS pn
-                ON pn."학수번호" = lec."학수번호"
-                    AND pn."설강소속코드" = lec."설강소속코드") AS prev_lecs
+                FROM ${tables_1.table_names.lec_info} AS info
+                JOIN ${tables_1.table_names.people_num} AS pn 
+                ON info."수업번호" = ${lec_num}
+                    AND pn."학수번호" = info."학수번호"
+                    AND pn."설강소속코드" = info."설강소속코드") AS prev_lecs
             JOIN ${tables_1.table_names.depart_stu_num} AS depart
             ON depart."수업번호" = prev_lecs."수업번호"
             ORDER BY prev_lecs."수업번호";
