@@ -35,9 +35,15 @@ router.post('/update', async(req : Request, res : Response) => {
         let stu_id : string = req.body.stu_id;
         let new_list : object[] = req.body.list;
         let sql : string = sql_list_old_list(stu_id)
-        
+        let new_lec : any
+        for(new_lec of new_list) {
+            new_lec.state = new_lec.isInTable
+            delete new_lec.isInTable
+        }
+
         let old_list : object[];
         old_list = (await db.query(sql)).rows;
+
         let lecs_to_del : any = old_list.filter((ele1: any) => 
             !new_list.some((ele2: any) => ele1.수업번호 == ele2.수업번호)
         );
@@ -51,7 +57,8 @@ router.post('/update', async(req : Request, res : Response) => {
             lec.state = -1;
         }
         lecs_to_update = lecs_to_update.concat(lecs_to_del);
-        sql = sql_list_update(stu_id, lecs_to_update);
+        console.log(lecs_to_update)
+        //sql = sql_list_update(stu_id, lecs_to_update);
 
         await db.query(sql);
 

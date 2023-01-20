@@ -109,8 +109,7 @@ const sql_grad_view = (stu_id : string) : string => {
                 "이수구분코드명",
                 "영역코드명",
                 "학점"::smallint,
-                "특수수업구분",
-                "이수단위"
+                "특수수업구분"
             FROM ${tables.lec_info} AS info
             JOIN ${tables.list} AS list
             ON list."수업번호" = info."수업번호" 
@@ -130,7 +129,7 @@ const sql_list_init = (stu_id : string) : string => {
                 tp_list."요일",
                 tp_list."시작시간",
                 tp_list."끝시간",
-                tp_list."상태" AS state
+                tp_list."상태" AS "isInTable"
             FROM 
                 (SELECT
                     list."수업번호",
@@ -159,8 +158,6 @@ const sql_list_old_list = (stu_id : string) : string => {
             WHERE list."학번" = '${stu_id}'
                 AND list."상태" != -1;
             `;
-
-
 }
 
 const sql_list_update = (stu_id : string, lecs_to_update : any) : string => {
@@ -196,7 +193,8 @@ const sql_recommend = (intervals : any) : string => {
                     '영역코드명', recom_info_list."영역코드명",
                     '요일', recom_info_list."요일",
                     '시작시간', recom_info_list."시작시간",
-                    '끝시간', recom_info_list."끝시간" 
+                    '끝시간', recom_info_list."끝시간",
+                    'isInTable', 0
                 )) AS "수업목록"
             FROM
                 (SELECT
@@ -241,9 +239,11 @@ const sql_recommend = (intervals : any) : string => {
                     HAVING COUNT(tp."수업번호") = searched.cnt) AS recom
                 JOIN ${tables.lec_info} AS info
                 ON info."수업번호" = recom."수업번호"
-                    AND (info."이수구분코드" = 111 OR info."이수구분코드" = 711)) AS recom_info_list
+                    AND (info."이수구분코드" = 711)) AS recom_info_list
             GROUP BY recom_info_list."영역코드명"
             `;    
+            //                    AND (info."이수구분코드" = 111 OR info."이수구분코드" = 711)) AS recom_info_list
+
     
     return sql;
 }

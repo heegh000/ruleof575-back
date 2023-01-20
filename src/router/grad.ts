@@ -10,14 +10,14 @@ router.get('/init', async(req : Request, res : Response) => {
         let sql : string = sql_grad_init(stu_id);
 
         let rows : object[];
-        let result: {status : object[]} = {
-            status: [],
+        let result: {grads  : object[]} = {
+            grads : [],
         };
 
         console.log("Request: grad init after login: " + stu_id);
         
         rows = (await db.query(sql)).rows;
-        result.status = rows;
+        result.grads  = rows;
 
         res.send(result);
     } 

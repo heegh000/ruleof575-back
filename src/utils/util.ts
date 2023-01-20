@@ -41,17 +41,4 @@ const get_intervals = (times : any) => {
     return result;
 };
 
-const filed_order = [
-    "가상대학영역",
-    "고전읽기영역",
-    "과학과기술영역",
-    "글로벌언어와문화영역",
-    "미래산업과창업영역",
-    "사회와세계영역",
-    "소프트웨어영역",
-    "인문과예술영역",
-    "일반영역",
-    "영역없음"
-]
-
-export { get_intervals, filed_order } 
+export { get_intervals } 

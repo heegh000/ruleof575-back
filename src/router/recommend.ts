@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../database/db';
 import { sql_recommend } from '../utils/sql';
-import { get_intervals, filed_order } from '../utils/util';
+import { get_intervals } from '../utils/util';
 
 const router : Router = Router();
 
@@ -15,8 +15,6 @@ router.post('/', async(req : Request, res : Response) => {
         let rows : object[];
 
         rows = (await db.query(sql)).rows;
-        
-        rows.sort((first: any, second : any) : number=> filed_order.indexOf(first.영역코드명) - filed_order.indexOf(second.영역코드명));
 
         res.send(rows);
     }
