@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.filed_order = exports.get_intervals = void 0;
+exports.get_intervals = void 0;
 const num_to_time = (num) => {
     if (Number.isInteger(num)) {
         return num + ':00';
@@ -36,16 +36,3 @@ const get_intervals = (times) => {
     return result;
 };
 exports.get_intervals = get_intervals;
-const filed_order = [
-    "가상대학영역",
-    "고전읽기영역",
-    "과학과기술영역",
-    "글로벌언어와문화영역",
-    "미래산업과창업영역",
-    "사회와세계영역",
-    "소프트웨어영역",
-    "인문과예술영역",
-    "일반영역",
-    "영역없음"
-];
-exports.filed_order = filed_order;

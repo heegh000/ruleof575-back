@@ -20,11 +20,23 @@ router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let time_blocks = req.body.time_blocks;
         let intervals = (0, util_1.get_intervals)(time_blocks);
+        let lecs;
+        let nt_lecs;
+        let nt_lec;
         let sql = (0, sql_1.sql_recommend)(intervals);
-        let rows;
-        rows = (yield db_1.db.query(sql)).rows;
-        rows.sort((first, second) => util_1.filed_order.indexOf(first.영역코드명) - util_1.filed_order.indexOf(second.영역코드명));
-        res.send(rows);
+        lecs = (yield db_1.db.query(sql)).rows;
+        sql = (0, sql_1.sql_recommend_nt)();
+        nt_lecs = (yield db_1.db.query(sql)).rows;
+        for (nt_lec of nt_lecs) {
+            let idx = lecs.findIndex((l) => { return l.영역코드명 == nt_lec.영역코드명; });
+            if (idx == -1) {
+                lecs.push(nt_lec);
+            }
+            else {
+                lecs[idx].수업목록 = [].concat(lecs[idx].수업목록, nt_lec.수업목록);
+            }
+        }
+        res.send(lecs);
     }
     catch (err) {
         if (err instanceof Error) {

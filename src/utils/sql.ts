@@ -42,6 +42,14 @@ const sql_details = (lec_num : number) : string[] => {
                 pn."다중전공배당인원",
                 pn."증원인원",
                 pn."희망수업등록인원",
+                pn."1순위",
+                pn."2순위",
+                pn."3순위",
+                pn."4순위",
+                pn."5순위",
+                pn."6순위",
+                pn."전체취소",                    
+                pn."정정취소",
                 depart."희망신청소속",
                 depart."학생수"
             FROM
@@ -67,6 +75,14 @@ const sql_details = (lec_num : number) : string[] => {
                 prev_lecs."다중전공배당인원",
                 prev_lecs."증원인원",
                 prev_lecs."희망수업등록인원",
+                prev_lecs."1순위",
+                prev_lecs."2순위",
+                prev_lecs."3순위",
+                prev_lecs."4순위",
+                prev_lecs."5순위",
+                prev_lecs."6순위",
+                prev_lecs."전체취소",
+                prev_lecs."수강취소",
                 depart."희망신청소속",
                 depart."학생수"
             FROM 
@@ -78,7 +94,15 @@ const sql_details = (lec_num : number) : string[] => {
                     pn."신청인원",
                     pn."다중전공배당인원",
                     pn."증원인원",
-                    pn."희망수업등록인원"
+                    pn."희망수업등록인원",
+                    pn."1순위",
+                    pn."2순위",
+                    pn."3순위",
+                    pn."4순위",
+                    pn."5순위",
+                    pn."6순위",
+                    pn."전체취소",
+                    pn."수강취소"
                 FROM ${tables.lec_info} AS info
                 JOIN ${tables.people_num} AS pn 
                 ON info."수업번호" = ${lec_num}
@@ -175,10 +199,45 @@ const sql_list_update = (stu_id : string, lecs_to_update : any) : string => {
     sql = sql.slice(0, -2);
     sql += `
             ON CONFLICT 
-                ("수업번호")
+                ("학번", "수업번호")
             DO UPDATE SET "상태" = EXCLUDED."상태";`
 
     return sql;
+}
+
+const sql_list_search = (keyword : string) : string => {
+    return `
+            SELECT 
+                searched."수업번호",
+                searched."과목명",
+                searched."대표교강사명",
+                REPLACE(searched."수업시간", ',', '<br />') AS "수업시간",
+                searched."영역코드명",
+                grouped_tp."요일",
+                grouped_tp."시작시간",
+                grouped_tp."끝시간",
+                0 AS inInTable
+            FROM 
+                (SELECT
+                    info."수업번호",
+                    info."과목명",
+                    info."대표교강사명",
+                    REPLACE(info."수업시간", ',', '<br />') AS "수업시간",
+                    info."영역코드명"
+                FROM
+                    ${tables.lec_info} AS info
+                WHERE info."과목명" LIKE '%${keyword}%') AS searched
+            JOIN
+                (SELECT
+                    "수업번호",
+                    ARRAY_AGG(tp."요일") AS "요일",
+                    ARRAY_AGG(tp."시작시간") AS "시작시간",
+                    ARRAY_AGG(tp."끝시간") AS "끝시간"
+                FROM
+                    ${tables.time_place} AS tp
+                GROUP BY tp."수업번호") grouped_tp
+            ON searched."수업번호" = grouped_tp."수업번호";
+            `
 }
 
 const sql_recommend = (intervals : any) : string => { 
@@ -248,6 +307,57 @@ const sql_recommend = (intervals : any) : string => {
     return sql;
 }
 
+const sql_recommend_nt = () => {
+    return `
+        SELECT 
+            recom_info_list."영역코드명",
+            ARRAY_agg(json_build_object(
+                '수업번호', recom_info_list."수업번호", 
+                '과목명', recom_info_list."과목명",
+                '대표교강사명', recom_info_list."대표교강사명",
+                '수업시간', recom_info_list."수업시간",
+                '영역코드명', recom_info_list."영역코드명",
+                '요일', recom_info_list."요일",
+                '시작시간', recom_info_list."시작시간",
+                '끝시간', recom_info_list."끝시간",
+                'isInTable', 0
+            )) AS "수업목록"
+        FROM
+            (SELECT
+                info."수업번호",
+                info."과목명",
+                info."대표교강사명",
+                REPLACE(info."수업시간", ',', '<br />') AS "수업시간",
+                info."이수구분코드명",
+                info."영역코드명",
+                recom."요일",
+                recom."시작시간",
+                recom."끝시간"
+            FROM
+                (SELECT
+                    tp."수업번호",
+                    ARRAY_AGG(tp."요일") AS "요일",
+                    ARRAY_AGG(tp."시작시간") AS "시작시간",
+                    ARRAY_AGG(tp."끝시간") AS "끝시간"
+                FROM
+                    (SELECT 
+                        "수업번호",
+                        COUNT("수업번호") :: smallint AS cnt
+                    FROM 
+                        ${tables.time_place}
+                    WHERE "요일" = '시간미지정강좌'
+                    GROUP BY "수업번호") AS searched
+                JOIN ${tables.time_place} AS tp	
+                ON tp."수업번호" = searched."수업번호"
+                GROUP BY tp."수업번호", searched.cnt
+                HAVING COUNT(tp."수업번호") = searched.cnt) AS recom
+            JOIN ${tables.lec_info} AS info
+            ON info."수업번호" = recom."수업번호"
+                AND (info."이수구분코드" = 711)) AS recom_info_list
+            GROUP BY recom_info_list."영역코드명"
+        `
+}
+
 export { 
     sql_details,
     sql_grad_init,
@@ -255,5 +365,7 @@ export {
     sql_list_init,
     sql_list_old_list,
     sql_list_update,
-    sql_recommend
+    sql_list_search,
+    sql_recommend,
+    sql_recommend_nt
 };

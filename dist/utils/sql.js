@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sql_recommend = exports.sql_list_update = exports.sql_list_old_list = exports.sql_list_init = exports.sql_grad_view = exports.sql_grad_init = exports.sql_details = void 0;
+exports.sql_recommend_nt = exports.sql_recommend = exports.sql_list_search = exports.sql_list_update = exports.sql_list_old_list = exports.sql_list_init = exports.sql_grad_view = exports.sql_grad_init = exports.sql_details = void 0;
 const tables_1 = require("../database/tables");
 const sql_details = (lec_num) => {
     return [
@@ -44,6 +44,14 @@ const sql_details = (lec_num) => {
                 pn."다중전공배당인원",
                 pn."증원인원",
                 pn."희망수업등록인원",
+                pn."1순위",
+                pn."2순위",
+                pn."3순위",
+                pn."4순위",
+                pn."5순위",
+                pn."6순위",
+                pn."전체취소",                    
+                pn."정정취소",
                 depart."희망신청소속",
                 depart."학생수"
             FROM
@@ -68,6 +76,14 @@ const sql_details = (lec_num) => {
                 prev_lecs."다중전공배당인원",
                 prev_lecs."증원인원",
                 prev_lecs."희망수업등록인원",
+                prev_lecs."1순위",
+                prev_lecs."2순위",
+                prev_lecs."3순위",
+                prev_lecs."4순위",
+                prev_lecs."5순위",
+                prev_lecs."6순위",
+                prev_lecs."전체취소",
+                prev_lecs."수강취소",
                 depart."희망신청소속",
                 depart."학생수"
             FROM 
@@ -79,7 +95,15 @@ const sql_details = (lec_num) => {
                     pn."신청인원",
                     pn."다중전공배당인원",
                     pn."증원인원",
-                    pn."희망수업등록인원"
+                    pn."희망수업등록인원",
+                    pn."1순위",
+                    pn."2순위",
+                    pn."3순위",
+                    pn."4순위",
+                    pn."5순위",
+                    pn."6순위",
+                    pn."전체취소",
+                    pn."수강취소"
                 FROM ${tables_1.table_names.lec_info} AS info
                 JOIN ${tables_1.table_names.people_num} AS pn 
                 ON info."수업번호" = ${lec_num}
@@ -110,8 +134,7 @@ const sql_grad_view = (stu_id) => {
                 "이수구분코드명",
                 "영역코드명",
                 "학점"::smallint,
-                "특수수업구분",
-                "이수단위"
+                "특수수업구분"
             FROM ${tables_1.table_names.lec_info} AS info
             JOIN ${tables_1.table_names.list} AS list
             ON list."수업번호" = info."수업번호" 
@@ -131,7 +154,7 @@ const sql_list_init = (stu_id) => {
                 tp_list."요일",
                 tp_list."시작시간",
                 tp_list."끝시간",
-                tp_list."상태" AS state
+                tp_list."상태" AS "isInTable"
             FROM 
                 (SELECT
                     list."수업번호",
@@ -179,6 +202,41 @@ const sql_list_update = (stu_id, lecs_to_update) => {
     return sql;
 };
 exports.sql_list_update = sql_list_update;
+const sql_list_search = (keyword) => {
+    return `
+            SELECT 
+                searched."수업번호",
+                searched."과목명",
+                searched."대표교강사명",
+                REPLACE(searched."수업시간", ',', '<br />') AS "수업시간",
+                searched."영역코드명",
+                grouped_tp."요일",
+                grouped_tp."시작시간",
+                grouped_tp."끝시간",
+                0 AS inInTable
+            FROM 
+                (SELECT
+                    info."수업번호",
+                    info."과목명",
+                    info."대표교강사명",
+                    REPLACE(info."수업시간", ',', '<br />') AS "수업시간",
+                    info."영역코드명"
+                FROM
+                    ${tables_1.table_names.lec_info} AS info
+                WHERE info."과목명" LIKE '%${keyword}%') AS searched
+            JOIN
+                (SELECT
+                    "수업번호",
+                    ARRAY_AGG(tp."요일") AS "요일",
+                    ARRAY_AGG(tp."시작시간") AS "시작시간",
+                    ARRAY_AGG(tp."끝시간") AS "끝시간"
+                FROM
+                    ${tables_1.table_names.time_place} AS tp
+                GROUP BY tp."수업번호") grouped_tp
+            ON searched."수업번호" = grouped_tp."수업번호";
+            `;
+};
+exports.sql_list_search = sql_list_search;
 const sql_recommend = (intervals) => {
     let sql = `
             SELECT 
@@ -191,7 +249,8 @@ const sql_recommend = (intervals) => {
                     '영역코드명', recom_info_list."영역코드명",
                     '요일', recom_info_list."요일",
                     '시작시간', recom_info_list."시작시간",
-                    '끝시간', recom_info_list."끝시간" 
+                    '끝시간', recom_info_list."끝시간",
+                    'isInTable', 0
                 )) AS "수업목록"
             FROM
                 (SELECT
@@ -234,9 +293,61 @@ const sql_recommend = (intervals) => {
                     HAVING COUNT(tp."수업번호") = searched.cnt) AS recom
                 JOIN ${tables_1.table_names.lec_info} AS info
                 ON info."수업번호" = recom."수업번호"
-                    AND (info."이수구분코드" = 111 OR info."이수구분코드" = 711)) AS recom_info_list
+                    AND (info."이수구분코드" = 711)) AS recom_info_list
             GROUP BY recom_info_list."영역코드명"
             `;
+    //                    AND (info."이수구분코드" = 111 OR info."이수구분코드" = 711)) AS recom_info_list
     return sql;
 };
 exports.sql_recommend = sql_recommend;
+const sql_recommend_nt = () => {
+    return `
+        SELECT 
+            recom_info_list."영역코드명",
+            ARRAY_agg(json_build_object(
+                '수업번호', recom_info_list."수업번호", 
+                '과목명', recom_info_list."과목명",
+                '대표교강사명', recom_info_list."대표교강사명",
+                '수업시간', recom_info_list."수업시간",
+                '영역코드명', recom_info_list."영역코드명",
+                '요일', recom_info_list."요일",
+                '시작시간', recom_info_list."시작시간",
+                '끝시간', recom_info_list."끝시간",
+                'isInTable', 0
+            )) AS "수업목록"
+        FROM
+            (SELECT
+                info."수업번호",
+                info."과목명",
+                info."대표교강사명",
+                REPLACE(info."수업시간", ',', '<br />') AS "수업시간",
+                info."이수구분코드명",
+                info."영역코드명",
+                recom."요일",
+                recom."시작시간",
+                recom."끝시간"
+            FROM
+                (SELECT
+                    tp."수업번호",
+                    ARRAY_AGG(tp."요일") AS "요일",
+                    ARRAY_AGG(tp."시작시간") AS "시작시간",
+                    ARRAY_AGG(tp."끝시간") AS "끝시간"
+                FROM
+                    (SELECT 
+                        "수업번호",
+                        COUNT("수업번호") :: smallint AS cnt
+                    FROM 
+                        ${tables_1.table_names.time_place}
+                    WHERE "요일" = '시간미지정강좌'
+                    GROUP BY "수업번호") AS searched
+                JOIN ${tables_1.table_names.time_place} AS tp	
+                ON tp."수업번호" = searched."수업번호"
+                GROUP BY tp."수업번호", searched.cnt
+                HAVING COUNT(tp."수업번호") = searched.cnt) AS recom
+            JOIN ${tables_1.table_names.lec_info} AS info
+            ON info."수업번호" = recom."수업번호"
+                AND (info."이수구분코드" = 711)) AS recom_info_list
+            GROUP BY recom_info_list."영역코드명"
+        `;
+};
+exports.sql_recommend_nt = sql_recommend_nt;

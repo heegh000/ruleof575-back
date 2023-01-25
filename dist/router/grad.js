@@ -21,11 +21,11 @@ router.get('/init', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         let sql = (0, sql_1.sql_grad_init)(stu_id);
         let rows;
         let result = {
-            status: [],
+            grads: [],
         };
         console.log("Request: grad init after login: " + stu_id);
         rows = (yield db_1.db.query(sql)).rows;
-        result.status = rows;
+        result.grads = rows;
         res.send(result);
     }
     catch (err) {

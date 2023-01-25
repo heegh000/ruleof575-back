@@ -39,6 +39,11 @@ router.post('/update', (req, res) => __awaiter(void 0, void 0, void 0, function*
         let stu_id = req.body.stu_id;
         let new_list = req.body.list;
         let sql = (0, sql_1.sql_list_old_list)(stu_id);
+        let new_lec;
+        for (new_lec of new_list) {
+            new_lec.state = new_lec.isInTable;
+            delete new_lec.isInTable;
+        }
         let old_list;
         old_list = (yield db_1.db.query(sql)).rows;
         let lecs_to_del = old_list.filter((ele1) => !new_list.some((ele2) => ele1.수업번호 == ele2.수업번호));
@@ -48,8 +53,11 @@ router.post('/update', (req, res) => __awaiter(void 0, void 0, void 0, function*
             lec.state = -1;
         }
         lecs_to_update = lecs_to_update.concat(lecs_to_del);
-        sql = (0, sql_1.sql_list_update)(stu_id, lecs_to_update);
-        yield db_1.db.query(sql);
+        console.log(lecs_to_update);
+        if (lecs_to_update.lenght != 0) {
+            sql = (0, sql_1.sql_list_update)(stu_id, lecs_to_update);
+            yield db_1.db.query(sql);
+        }
         res.send("Sueccess list update");
     }
     catch (err) {
@@ -60,5 +68,24 @@ router.post('/update', (req, res) => __awaiter(void 0, void 0, void 0, function*
             console.log("Unknwon list update error: " + err);
         }
         res.status(500).send("Fail list update");
+    }
+}));
+router.get('/search', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let keyword = req.query.word;
+        let sql = (0, sql_1.sql_list_search)(keyword);
+        let rows;
+        rows = (yield db_1.db.query(sql)).rows;
+        console.log(rows);
+        res.send(rows);
+    }
+    catch (err) {
+        if (err instanceof Error) {
+            console.error("list search error " + err);
+        }
+        else {
+            console.log("Unknwon list search error: " + err);
+        }
+        res.status(500).send("Fail list search");
     }
 }));
