@@ -2,45 +2,54 @@ import { Router, Request, Response } from 'express';
 import { db } from '../database/db';
 import { sql_recommend, sql_recommend_nt } from '../utils/sql';
 import { get_intervals } from '../utils/util';
+import { RecommLecs, IntervalsEachDays } from '../utils/interfaces';
 
 const router : Router = Router();
 
 router.post('/', async(req : Request, res : Response) => {
 
     try {
-        let time_blocks : any = req.body.time_blocks;
-        let intervals : object = get_intervals(time_blocks);
-        let lecs : any;
-        let nt_lecs : any;
-        let nt_lec : any;
+        let content : RecommLecs[] = [];
+
+        let time_blocks : IntervalsEachDays = req.body.time_blocks;
+        let intervals : IntervalsEachDays = get_intervals(time_blocks);
+
+        let lecs : RecommLecs[] = [];
+        let nt_lecs : RecommLecs[] = [];
+
+        console.log("Request recommend")
         
         let sql : string = sql_recommend(intervals);
         lecs = (await db.query(sql)).rows;
-
+        
         sql = sql_recommend_nt();
         nt_lecs = (await db.query(sql)).rows
+        
 
+        let nt_lec : RecommLecs;
         for(nt_lec of nt_lecs) {
-            let idx : number = lecs.findIndex((l : any) => { return l.영역코드명 == nt_lec.영역코드명});
+            let idx : number = lecs.findIndex((l : RecommLecs) => { return l.영역코드명 == nt_lec.영역코드명});
             if(idx == -1) {
                 lecs.push(nt_lec)
             }
             else {
-                lecs[idx].수업목록 = [].concat(lecs[idx].수업목록, nt_lec.수업목록)
+                lecs[idx].수업목록 = lecs[idx].수업목록.concat(nt_lec.수업목록)
             }
         }
 
-        res.send(lecs);
+        content = lecs;
+
+        res.send(content);
     }
     catch(err) {
         if(err instanceof Error) {
-            console.error("recommend error " + err);
+            console.error("Error recommend: " + err);
         }
         else {
-            console.log("Unknwon recommend error: " + err);
+            console.log("Unknwon Error recommend: " + err);
         }
 
-        res.status(500).send("Fail recommend");
+        res.status(500).send("Fail");
     }
 });
 export { router };

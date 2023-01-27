@@ -1,4 +1,6 @@
-const num_to_time = (num : number) => {
+import { IntervalsEachDays } from "./interfaces";
+
+const num_to_time = (num : number) : string => {
     if(Number.isInteger(num)) {
         return num + ':00'
     }
@@ -8,29 +10,30 @@ const num_to_time = (num : number) => {
 
 }
 
-const get_intervals = (times : any) => {
-    let result : any = {
-        '월' : [],
-        '화' : [],
-        '수' : [],
-        '목' : [],
-        '금' : []
+const get_intervals = (times : IntervalsEachDays) => {
+    let result : IntervalsEachDays = {
+        월 : [],
+        화 : [],
+        수 : [],
+        목 : [],
+        금 : []
     };
 
-    for(let day in result) {
-        let start = -1;
+    let day : string;
+    for(day in result) {
+        let start : number = -1;
         let len = times[day].length
     
         for(let i = 0; i < len; i++) {
 
             if(start == -1) {
-                start = times[day][i].start;
+                start = times[day][i].start as number;
             } 
             
             if(i == len -1 || times[day][i].end != times[day][i+1].start) {
                 result[day].push({
                     start : num_to_time(start), 
-                    end : num_to_time(times[day][i].end)
+                    end : num_to_time(times[day][i].end as number)
                 });
                 start = -1;
             }
