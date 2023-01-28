@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { db } from '../database/db';
 import { sql_recommend, sql_recommend_nt } from '../utils/sql';
 import { get_intervals } from '../utils/util';
-import { RecommLecs, IntervalsEachDays } from '../utils/interfaces';
+import { RecommLecs, IntervalsPerDays } from '../utils/interfaces';
 
 const router : Router = Router();
 
@@ -11,8 +11,9 @@ router.post('/', async(req : Request, res : Response) => {
     try {
         let content : RecommLecs[] = [];
 
-        let time_blocks : IntervalsEachDays = req.body.time_blocks;
-        let intervals : IntervalsEachDays = get_intervals(time_blocks);
+        let time_blocks : IntervalsPerDays = req.body.time_blocks;
+
+        let intervals : IntervalsPerDays = get_intervals(time_blocks);
 
         let lecs : RecommLecs[] = [];
         let nt_lecs : RecommLecs[] = [];
@@ -25,7 +26,6 @@ router.post('/', async(req : Request, res : Response) => {
         sql = sql_recommend_nt();
         nt_lecs = (await db.query(sql)).rows
         
-
         let nt_lec : RecommLecs;
         for(nt_lec of nt_lecs) {
             let idx : number = lecs.findIndex((l : RecommLecs) => { return l.영역코드명 == nt_lec.영역코드명});

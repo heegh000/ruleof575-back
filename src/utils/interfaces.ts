@@ -1,13 +1,11 @@
 interface LecToSend {
     수업번호 : number;
     과목명 : string;
-    대표교강사명 : string;
+    대표교강사명 : string | null;
     수업시간 : string;
+    학점 : number;
     이수구분코드명 : string;
     영역코드명 : string;
-    요일 : (string|null)[];
-    시작시간 : (string|null)[];
-    끝시간 : (string|null)[];
     isInTable : number;
 }
 
@@ -27,7 +25,7 @@ interface Interval {
     end : number|string;
 }
 
-interface IntervalsEachDays {
+interface IntervalsPerDays {
     [day : string] : Interval[],
     월 : Interval[];
     화 : Interval[];
@@ -44,7 +42,7 @@ interface LecDetailsInfo {
     학점 : number;
     이론 : number;
     실습 : number;
-    대표교강사명 : string;
+    대표교강사명 : string | null;
     강좌유형 : string;
     수업시간 : string;
     강의실 : string;
@@ -71,6 +69,9 @@ interface WantedStuDetails {
 
 interface PrevLecDetailsInfo {
     수업번호 : number;
+    수업년도 : number;
+    수업학기 : number;
+    대표교강사명 : number | null;
     제한인원 : number;
     신청인원 : number;
     증원인원 : number;
@@ -99,14 +100,20 @@ interface LecForGrad {
     특수수업구분 : string;
 }
 
+interface Semester {
+    year : number;
+    sem : number;
+}
+
 export {
     LecToSend,
     LecNumState,
     RecommLecs,
     Interval,
-    IntervalsEachDays,
+    IntervalsPerDays,
     LecDetailsInfo,
     PrevLecDetailsInfo,
     GradRecord,
-    LecForGrad
+    LecForGrad,
+    Semester
 }

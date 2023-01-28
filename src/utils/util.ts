@@ -1,4 +1,4 @@
-import { IntervalsEachDays } from "./interfaces";
+import { IntervalsPerDays } from "./interfaces";
 
 const num_to_time = (num : number) : string => {
     if(Number.isInteger(num)) {
@@ -10,8 +10,8 @@ const num_to_time = (num : number) : string => {
 
 }
 
-const get_intervals = (times : IntervalsEachDays) => {
-    let result : IntervalsEachDays = {
+const get_intervals = (times : IntervalsPerDays) => {
+    let result : IntervalsPerDays = {
         월 : [],
         화 : [],
         수 : [],
