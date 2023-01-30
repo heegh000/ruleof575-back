@@ -618,7 +618,8 @@ const sql_grad_init = (stu_id : string) : string => {
     SELECT 
         "이수명",
         "기준"::smallint,
-        "이수"::smallint 
+        "이수"::smallint,
+        "이수여부"
     FROM ${tables.grad_list} 
     WHERE "학번" = ${db.escapeLiteral(stu_id)};
             `;
