@@ -1,9 +1,10 @@
-import express, { Express, Request, Response, NextFunction} from 'express';
+import express, { Express, Request, Response, NextFunction, application} from 'express';
 import { db } from './database/db';
-import { router as grad }  from './router/grad';
-import { router as details } from './router/details';
 import { router as list }  from './router/list';
 import { router as recommend } from './router/recommend';
+import { router as custom } from './router/custom';
+import { router as details } from './router/details';
+import { router as grad }  from './router/grad';
 import { router as test } from './router/test';
 import cors from 'cors';
 
@@ -21,10 +22,11 @@ app.use(express.json());
 app.use(express.urlencoded({extended : false }));
 
 //라우터 연결
-app.use('/details', details);
-app.use('/grad', grad);
 app.use('/list', list);
 app.use('/recommend', recommend);
+app.use('/custom', custom);
+app.use('/details', details);
+app.use('/grad', grad);
 
 //테스팅 라우터
 app.use('/test', test);

@@ -39,6 +39,8 @@ router.post('/', async(req : Request, res : Response) => {
 
         content = lecs;
 
+        console.log(content)
+
         res.send(content);
     }
     catch(err) {

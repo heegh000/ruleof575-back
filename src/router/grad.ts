@@ -69,6 +69,8 @@ router.post('/update', async(req : Request, res : Response) => {
 
         let list : GradRecord[] = req.body.list;
 
+        console.log(list)
+
         if(list.length != 0) {
             let sql : string = sql_grad_update(stu_id, list);
             await db.query(sql)

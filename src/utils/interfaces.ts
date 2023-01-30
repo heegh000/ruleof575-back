@@ -7,17 +7,28 @@ interface LecToSend {
     이수구분코드명 : string;
     영역코드명 : string;
     isInTable : number;
+    order : number;
 }
 
-interface LecNumState {
+interface LecToUpdate {
     수업번호 : number;
     state? : number;
     isInTable? : number
+    order : number;
 }
 
 interface RecommLecs {
     영역코드명 : string,
     수업목록 : LecToSend[]
+}
+
+interface CustomRankingLec {
+    수업번호 : number;
+    과목명 : string;
+    대표교강사명 : string | null;
+    수업시간 : string;
+    설강기준평점? : number;
+    개설예정수업목록 : LecToSend[];
 }
 
 interface Interval {
@@ -84,13 +95,16 @@ interface PrevLecDetailsInfo {
     순위5 : number;
     순위5초과 : number;
     희망수업등록인원 : number;
+    재수강인원 : number;
     희망수업세부정보 : WantedStuDetails[];
 }
 
 interface GradRecord {
+    이수여수: any;
     이수명 : string;
     기준 : number;
     이수 : number;
+    이수여부 : string;
 }
 
 interface LecForGrad {
@@ -107,8 +121,9 @@ interface Semester {
 
 export {
     LecToSend,
-    LecNumState,
+    LecToUpdate,
     RecommLecs,
+    CustomRankingLec,
     Interval,
     IntervalsPerDays,
     LecDetailsInfo,

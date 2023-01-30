@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { db } from '../database/db';
 import crypto from 'crypto';
 import { sql_list_init, sql_list_old_list, sql_list_update, sql_list_search } from '../utils/sql'
-import { LecToSend, LecNumState } from '../utils/interfaces'
+import { LecToSend, LecToUpdate } from '../utils/interfaces'
 
 const router : Router = Router();
 
@@ -10,7 +10,7 @@ router.get('/init', async(req : Request, res : Response) => {
 
     try {
         let content : { list : LecToSend[] } = {
-            list : []
+            list : []   
         };
         
         let stu_id : string = req.query.stu_id as string;
@@ -43,28 +43,31 @@ router.post('/update', async(req : Request, res : Response) => {
         
         let sql : string = sql_list_old_list(stu_id);
 
-        let old_list : LecNumState[];
+        let old_list : LecToUpdate[];
         old_list = (await db.query(sql)).rows;
 
-        let new_list : LecNumState[] = req.body.list;
-        let new_lec : LecNumState;
+        let new_list : LecToUpdate[] = req.body.list;
+        let new_lec : LecToUpdate;
 
         for(new_lec of new_list) {
             new_lec.state = new_lec.isInTable
             delete new_lec.isInTable
         }
 
-        let lecs_to_del : LecNumState[] = old_list.filter((ele1: LecNumState) => 
-            !new_list.some((ele2: LecNumState) => ele1.수업번호 == ele2.수업번호)
+        let lecs_to_del : LecToUpdate[] = old_list.filter((ele1: LecToUpdate) => 
+            !new_list.some((ele2: LecToUpdate) => ele1.수업번호 == ele2.수업번호)
         );
-        let lecs_to_update : LecNumState[] = new_list.filter((ele1: LecNumState) => 
-            !old_list.some((ele2: LecNumState) => ele1.수업번호 == ele2.수업번호 && ele1.state == ele2.state)
+        let lecs_to_update : LecToUpdate[] = new_list.filter((ele1: LecToUpdate) => 
+            !old_list.some((ele2: LecToUpdate) => ele1.수업번호 == ele2.수업번호 && ele1.state == ele2.state && ele1.order == ele2.order)
         );
         
-        let lec : LecNumState;
+        let lec : LecToUpdate;
         for (lec of lecs_to_del) {
             lec.state = -1;
+            lec.order = -1;
         }
+
+        console.log(lecs_to_del);
 
         lecs_to_update = lecs_to_update.concat(lecs_to_del);
 
