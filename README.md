@@ -15,7 +15,7 @@ Directory 구조
         - db.ts : db_info.json을 읽어서 db 생성
         - tables.js : db_info.json을 읽어서 테이블에 대한 정보를 담는 객체를 생성
     - router
-        - custom.ts : **강의랭킹을** 처리하기 위한 라우터
+        - custom.ts : **강의랭킹**을 처리하기 위한 라우터
         - details.ts : **수업상세**를 처리하기 위한 라우터
         - gard.ts : **졸업사정**을 처리하기 위한 라우터
         - list.ts : **수업목록**을 처리하기 위한 라우터
